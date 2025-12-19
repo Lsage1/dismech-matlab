@@ -130,6 +130,18 @@ plot_MultiRod(softRobot, 0.0, sim_params,environment,imc);
 
 %% Initial conditions on velocity / angular velocity (if any)
 
+%% Create images folder
+current_dir = pwd;
+images_folder = fullfile(current_dir, 'images');
+if ~exist(images_folder, 'dir')
+    mkdir(images_folder);
+    fprintf('Created images folder at: %s\n', images_folder);
+end
+
+% Verify the folder exists
+if ~exist(images_folder, 'dir')
+    error('Failed to create images folder at: %s', images_folder);
+end
 
 %% Time stepping scheme
 
@@ -181,6 +193,19 @@ for timeStep = 1:Nsteps
     end
     if mod(timeStep, sim_params.plotStep) == 0
         plot_MultiRod(softRobot, ctime, sim_params, environment, imc);
+        fig_handle = gcf
+
+        % Create the full path for the image file
+        img_filename = fullfile(images_folder, sprintf('frame_%05d.png', timeStep));
+        try
+            print(fig_handle, img_filename, '-dpng', '-r150');
+            fprintf('Saved frame %d to: %s\n', timeStep, img_filename);
+        catch ME
+            warning('Failed to save frame %d: %s', timeStep, ME.message);
+        end
+        
+        % Close figure to save memory
+        close(fig_handle);
     end
 end
 
@@ -193,6 +218,41 @@ writematrix(current_pos_x, filename, Sheet=1,Range='B1');
 writematrix(current_pos_y, filename, Sheet=1,Range='C1');
 writematrix(current_pos_z, filename, Sheet=1,Range='D1');
 
+%% Create video from images
+fprintf('Creating video from saved images...\n');
+
+% Get list of all saved images
+img_files = dir(fullfile(images_folder, 'frame_*.png'));
+if isempty(img_files)
+    warning('No images found to create video in: %s', images_folder);
+else
+    fprintf('Found %d images to create video\n', length(img_files));
+    
+    % Sort files by name to ensure correct order
+    [~, idx] = sort({img_files.name});
+    img_files = img_files(idx);
+    
+    % Create video writer object
+    video_filename = fullfile(current_dir, 'simulation_animation.mp4');
+    v = VideoWriter(video_filename, 'MPEG-4');
+    v.FrameRate = round(1/(sim_params.dt * sim_params.plotStep)); % Frame rate based on time step
+    % Adjust frame rate if needed (e.g., for faster/slower playback)
+    v.FrameRate = min(max(v.FrameRate, 10), 60); % Clamp between 10-60 fps
+    
+    open(v);
+    
+    % Read each image and write to video
+    for i = 1:length(img_files)
+        img_path = fullfile(images_folder, img_files(i).name);
+        img = imread(img_path);
+        writeVideo(v, img);
+    end
+    
+    close(v);
+    fprintf('Video saved as: %s\n', video_filename);
+    fprintf('Frame rate: %.2f fps\n', v.FrameRate);
+end
+
 %% Plots
 % time trajectory
 figure()
@@ -202,10 +262,10 @@ legend(['x'; 'y'; 'z'])
 xlabel('t [s]')
 ylabel('position [m]')
 % space trajectory
-figure()
-plot3(current_pos_x, current_pos_y, current_pos_z);
-title('space trajectory of the node')
-legend(['x'; 'y'; 'z'])
-xlabel('x [m]')
-ylabel('y [m]')
-zlabel('z [m]')
+%figure()
+%plot3(current_pos_x, current_pos_y, current_pos_z);
+%title('space trajectory of the node')
+%legend(['x'; 'y'; 'z'])
+%xlabel('x [m]')
+%ylabel('y [m]')
+%zlabel('z [m]')
