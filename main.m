@@ -11,9 +11,11 @@ addpath external_forces/
 addpath adaptive_stepping/
 addpath logging/
 addpath(genpath('experiments')); 
+addpath experiments/hapticDevice
 
 % % Examples:
-robotDescriptionRodCantilever
+%robotDescriptionRodCantilever
+robotDescriptionHapticDevice
 % robotDescriptionShellCantilever
 % robotDescriptionParachute
 % robotDescriptionRodContact
