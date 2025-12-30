@@ -80,6 +80,18 @@ spaced_points = evaluateNURBS(control_points, weights, knots, degree, u_spaced);
 spaced_points(1, :) = control_points(1, :);
 spaced_points(end, :) = control_points(end, :);
 
+% Center vertex is the first point
+center_vertex = spaced_points(1, :);
+
+% Define three additional hardcoded vertices
+additional_vertices = [
+    -.008,   .006,    .015;   % Vertex 1
+    -.002,  -.009,    .015;   % Vertex 2
+     .004,   .008,    .015;   % Vertex 3
+];
+
+n_additional = size(additional_vertices, 1);
+
 %% 5. Plot in 3D
 figure('Color', 'w');
 hold on; grid on; axis equal;

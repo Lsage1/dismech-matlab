@@ -76,9 +76,9 @@ angles = [0, 120, 240];  % Degrees from x-axis
 central_node = branch_template(1, :);
 
 hardcoded_vertices = [
-     0.011 * cosd(-30),  0.011 * sind(-30),    0;   % Vertex 1
-     0.011 * cosd(90),   0.011 * sind(90),     0;   % Vertex 2
-     0.011 * cosd(210),  0.011 * sind(210),    0;   % Vertex 3
+     0,   0.01 * cosd(60),    0;   % Vertex 1
+    -0.01 * cosd(60),  -.009,    0;   % Vertex 2
+    -0.01,   .008,    0;   % Vertex 3
 ];
 nodes = [hardcoded_vertices; central_node];  % Vertices 1-3, central node is node 4
 edges = [];

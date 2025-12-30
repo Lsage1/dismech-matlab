@@ -21,6 +21,9 @@ robotDescriptionHapticDevice
 % robotDescriptionRodContact
 % robotDescriptionSquarePlate
 
+edge_to_actuate = 1;  % Change this to your edge of interest
+
+
 % create geometry
 [nodes, edges, rod_edges, shell_edges, rod_shell_joint_edges, rod_shell_joint_total_edges, face_nodes, face_edges, face_shell_edges, ...
     elStretchRod, elStretchShell, elBendRod, elBendSign, elBendShell, sign_faces, face_unit_norms]...
@@ -71,6 +74,18 @@ else
             elBendRod(b,:), elBendSign(b,:), [0 0], 0, softRobot);
     end
 end
+
+%% Store initial rest length for actuation
+initial_rest_length = stretch_springs(edge_to_actuate).refLen;
+final_rest_length = 0.6 * initial_rest_length
+% If using relative change (Option 2 above), calculate final length:
+% final_rest_length = rest_length_factor * initial_rest_length;
+
+fprintf('Edge %d initial rest length: %.6f m\n', edge_to_actuate, initial_rest_length);
+fprintf('Edge %d final rest length: %.6f m\n', edge_to_actuate, final_rest_length);
+fprintf('Rest length change: %.6f m (%.2f%%)\n', ...
+    final_rest_length - initial_rest_length, ...
+    100*(final_rest_length - initial_rest_length)/initial_rest_length);
 
 % shell bending spring
 n_hinge = size(elBendShell,1);
@@ -163,9 +178,21 @@ current_pos_z(1) = softRobot.q0(3*log_node);
 dof_with_time = zeros(softRobot.n_DOF+1,Nsteps);
 dof_with_time(1,:) = time_arr;
 
+rest_length_history = zeros(Nsteps, 1); % Log rest length of interest
+
 for timeStep = 1:Nsteps
     if(sim_params.static_sim)
         environment.g = timeStep*environment.static_g/Nsteps; % ramp gravity
+        
+        current_rest_length = initial_rest_length + timeStep * (final_rest_length - initial_rest_length) / Nsteps;
+
+        % Update BOTH locations where rest length is stored
+        stretch_springs(edge_to_actuate).refLen = current_rest_length;
+        softRobot.refLen(edge_to_actuate) = current_rest_length;
+        
+        % Log the current rest length
+        rest_length_history(timeStep) = current_rest_length;
+
     end
     %% Precomputation at each timeStep: midedge normal shell bending
     if(sim_params.use_midedge)
@@ -195,7 +222,7 @@ for timeStep = 1:Nsteps
     end
     if mod(timeStep, sim_params.plotStep) == 0
         plot_MultiRod(softRobot, ctime, sim_params, environment, imc);
-        fig_handle = gcf
+        fig_handle = gcf;
 
         % Create the full path for the image file
         img_filename = fullfile(images_folder, sprintf('frame_%05d.png', timeStep));
@@ -256,18 +283,4 @@ else
 end
 
 %% Plots
-% time trajectory
-figure()
-plot(time_arr,current_pos_x, time_arr, current_pos_y, time_arr, current_pos_z);
-title('time trajectory of the node')
-legend(['x'; 'y'; 'z'])
-xlabel('t [s]')
-ylabel('position [m]')
-% space trajectory
-%figure()
-%plot3(current_pos_x, current_pos_y, current_pos_z);
-%title('space trajectory of the node')
-%legend(['x'; 'y'; 'z'])
-%xlabel('x [m]')
-%ylabel('y [m]')
-%zlabel('z [m]')
+

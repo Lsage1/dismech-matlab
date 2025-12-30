@@ -1,6 +1,6 @@
 % input: robotDescription.m
 
-sim_params.static_sim = false;
+sim_params.static_sim = true;
 sim_params.TwoDsim = false;
 sim_params.use_midedge = false; % boolean var to decide on using midedge normal or 
 % hinge model for shell bending
@@ -20,7 +20,7 @@ sim_params.maximum_iter = 100;
 % Total simulation time
 if(sim_params.static_sim)
 %     sim_params.totalTime = sim_params.dt;
-    sim_params.totalTime = sim_params.dt*5;
+    sim_params.totalTime = sim_params.dt*15;
 else
     sim_params.totalTime = 0.0015; % sec
 end
@@ -42,9 +42,9 @@ inputFileName = 'experiments/hapticDevice/nurbs_cone_structure.txt';
 geom.shell_h = 0;
 geom.rod_r0 = 0.0015; % for contact
 % % geom cross section of rod
-ro = .0015
+ro = .0015;
 
-geom.Axs = pi * ro ^ 2
+geom.Axs = pi * ro ^ 2;
 geom.Ixs1 = pi * ro^4 / 4;
 geom.Ixs2 = pi * ro^4 / 4;
 geom.Jxs = pi * ro^4 / 2;
@@ -63,7 +63,7 @@ env.ext_force_list = ["gravity", "pointForce"];
 env.g = [0, 0, 0]';
 
 % Define the force vector (3x1 for a single node, or 3xN for N nodes)
-env.ptForce = [0; 1; 0];  % 0.01 N upward force
+env.ptForce = [0; 0; 0];  % 0.01 N upward force
 
 % Define which node to apply the force to
 env.ptForce_node = 1;  % Apply to node 1 (central node)
@@ -75,7 +75,7 @@ sim_params.ftol = 1e-4;
 sim_params.dtol = 1e-2;
 
 %% Boundary conditions
-fixed_node_indices = [1, 31, 32, 61, 62, 91, 92];
+fixed_node_indices = [1,2,3 33, 34, 63, 64, 93, 94];
 fixed_edge_indices = [];
 
 %% logging
