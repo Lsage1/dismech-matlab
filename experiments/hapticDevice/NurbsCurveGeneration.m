@@ -1,9 +1,21 @@
-% Nurbs Curve test
+
 
 % Generate NURBS curve with evenly spaced points and plot in 3D
 
-%% 1. Define control points (example: your cone branch)
-% You can replace these with your own points
+%% 1. Define control points 
+control_points = [
+     0,      0,       .015;
+    .007,    .005,       .015;
+    .019,    .0040,       .007;
+    .004,    .0009,       .004;
+    .004,    .0005,   .002;
+    .009,    .0005,   .002;
+    .009,    0,     0;
+    
+    
+];
+
+%{
 control_points = [
      0,      0,       .015;
     .007,    .005,       .015;
@@ -18,6 +30,7 @@ control_points = [
     
     
 ];
+%}
 
 % Or use your quarter circle points
 % control_points = [...your points here...];

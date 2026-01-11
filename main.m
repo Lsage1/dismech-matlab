@@ -21,7 +21,11 @@ robotDescriptionHapticDevice
 % robotDescriptionRodContact
 % robotDescriptionSquarePlate
 
-edge_to_actuate = 1;  % Change this to your edge of interest
+edges_to_actuate = [1, 2, 3];  % Edges that represent the tendons"
+n_actuated_edges = length(edges_to_actuate);
+
+% Define nodes to highlight in green
+top_verts_ind = [5, 35, 65];
 
 
 % create geometry
@@ -76,16 +80,28 @@ else
 end
 
 %% Store initial rest length for actuation
-initial_rest_length = stretch_springs(edge_to_actuate).refLen;
-final_rest_length = 0.6 * initial_rest_length
+initial_rest_length = zeros(n_actuated_edges, 1)
+for i = 1:n_actuated_edges
+    edge_idx = edges_to_actuate(i)
+    initial_rest_length(i) = stretch_springs(edge_idx).refLen;
+end
+
+
+final_rest_length = [initial_rest_length(1) * 1, ...
+                     initial_rest_length(2) * 0.5, ...
+                     initial_rest_length(3) * 1]';
 % If using relative change (Option 2 above), calculate final length:
 % final_rest_length = rest_length_factor * initial_rest_length;
 
-fprintf('Edge %d initial rest length: %.6f m\n', edge_to_actuate, initial_rest_length);
-fprintf('Edge %d final rest length: %.6f m\n', edge_to_actuate, final_rest_length);
-fprintf('Rest length change: %.6f m (%.2f%%)\n', ...
-    final_rest_length - initial_rest_length, ...
-    100*(final_rest_length - initial_rest_length)/initial_rest_length);
+% Print summary
+for i = 1:n_actuated_edges
+    edge_idx = edges_to_actuate(i);
+    fprintf('Edge %d initial rest length: %.6f m\n', edge_idx, initial_rest_length(i));
+    fprintf('Edge %d final rest length: %.6f m\n', edge_idx, final_rest_length(i));
+    fprintf('Rest length change: %.6f m (%.2f%%)\n', ...
+        final_rest_length(i) - initial_rest_length(i), ...
+        100*(final_rest_length(i) - initial_rest_length(i))/initial_rest_length(i));
+end
 
 % shell bending spring
 n_hinge = size(elBendShell,1);
@@ -143,7 +159,7 @@ softRobot.fixed_edges = fixed_edge_indices;
 [softRobot.fixedDOF, softRobot.freeDOF] = FindFixedFreeDOF(softRobot.fixed_nodes, softRobot.fixed_edges, softRobot.n_DOF, softRobot.n_nodes);
 
 % Visualize initial configuration and the fixed and free nodes: free nodes - blue, fixed - red
-plot_MultiRod(softRobot, 0.0, sim_params,environment,imc);
+plot_MultiRod(softRobot, 0.0, sim_params,environment,imc, top_verts_ind);
 
 %% Initial conditions on velocity / angular velocity (if any)
 
@@ -178,20 +194,24 @@ current_pos_z(1) = softRobot.q0(3*log_node);
 dof_with_time = zeros(softRobot.n_DOF+1,Nsteps);
 dof_with_time(1,:) = time_arr;
 
-rest_length_history = zeros(Nsteps, 1); % Log rest length of interest
+rest_length_history = zeros(Nsteps, n_actuated_edges); % Log rest length of interest
 
 for timeStep = 1:Nsteps
     if(sim_params.static_sim)
         environment.g = timeStep*environment.static_g/Nsteps; % ramp gravity
         
-        current_rest_length = initial_rest_length + timeStep * (final_rest_length - initial_rest_length) / Nsteps;
+        for i = 1:n_actuated_edges
+            edge_idx = edges_to_actuate(i);
+            current_rest_length = initial_rest_length(i) + ...
+                timeStep * (final_rest_length(i) - initial_rest_length(i)) / Nsteps;
 
-        % Update BOTH locations where rest length is stored
-        stretch_springs(edge_to_actuate).refLen = current_rest_length;
-        softRobot.refLen(edge_to_actuate) = current_rest_length;
-        
-        % Log the current rest length
-        rest_length_history(timeStep) = current_rest_length;
+            % Update BOTH locations where rest length is stored
+            stretch_springs(edge_idx).refLen = current_rest_length;
+            softRobot.refLen(edge_idx) = current_rest_length;
+            
+            % Log the current rest length
+            rest_length_history(timeStep, i) = current_rest_length;
+        end
 
     end
     %% Precomputation at each timeStep: midedge normal shell bending
@@ -211,6 +231,7 @@ for timeStep = 1:Nsteps
     softRobot.q0 = softRobot.q;
 
     %% Logging and animation
+    %{
     current_pos_x(timeStep) = softRobot.q0(3*log_node-2);
     current_pos_y(timeStep) = softRobot.q0(3*log_node-1);
     current_pos_z(timeStep) = softRobot.q0(3*log_node);
@@ -221,7 +242,7 @@ for timeStep = 1:Nsteps
         end
     end
     if mod(timeStep, sim_params.plotStep) == 0
-        plot_MultiRod(softRobot, ctime, sim_params, environment, imc);
+        plot_MultiRod(softRobot, ctime, sim_params, environment, imc, top_verts_ind);
         fig_handle = gcf;
 
         % Create the full path for the image file
@@ -234,12 +255,16 @@ for timeStep = 1:Nsteps
         end
         
         % Close figure to save memory
-        close(fig_handle);
+        %close(fig_handle);
+        
     end
+%}
 end
 
 %% Saving data
-[rod_data,shell_data] = logDataForRendering(dof_with_time, softRobot, Nsteps, sim_params.static_sim);
+%[rod_data,shell_data] = logDataForRendering(dof_with_time, softRobot, Nsteps, sim_params.static_sim);
+
+%{
 
 filename = "node_trajectory.xls";
 writematrix(time_arr', filename, Sheet=1,Range='A1');
@@ -282,5 +307,4 @@ else
     fprintf('Frame rate: %.2f fps\n', v.FrameRate);
 end
 
-%% Plots
-
+%}

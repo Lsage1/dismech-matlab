@@ -201,7 +201,7 @@ while ~solved % % error > sim_params.tol
     if(iter>sim_params.maximum_iter)
         convergence_failed = 1;
         warning("Could not converge in %d iterations", sim_params.maximum_iter);
-        break; % Exit Loop, return to optimizer with convergence_failed flag true
+        break; % Exit Loop, return to optimizer wit
     end
 
     iter = iter + 1;

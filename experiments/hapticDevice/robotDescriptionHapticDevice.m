@@ -20,7 +20,7 @@ sim_params.maximum_iter = 100;
 % Total simulation time
 if(sim_params.static_sim)
 %     sim_params.totalTime = sim_params.dt;
-    sim_params.totalTime = sim_params.dt*15;
+    sim_params.totalTime = sim_params.dt*5;
 else
     sim_params.totalTime = 0.0015; % sec
 end

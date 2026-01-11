@@ -1,4 +1,9 @@
-function plot_MultiRod(MultiRod, ctime, sim_params, environment,imc)
+function plot_MultiRod(MultiRod, ctime, sim_params, environment,imc, highlighted_nodes)
+
+% highlighted_nodes is an optional parameter - if not provided, defaults to empty
+if nargin < 6
+    highlighted_nodes = [];
+end
 
 n_nodes=MultiRod.n_nodes;
 q=MultiRod.q;
@@ -56,6 +61,18 @@ for i=1:n_edges
     end
     % end
 end
+
+% Plot highlighted nodes in lime green
+if ~isempty(highlighted_nodes)
+    for i = 1:length(highlighted_nodes)
+        node_idx = highlighted_nodes(i);
+        node_pos = q(mapNodetoDOF(node_idx));
+        plot3(node_pos(1), node_pos(2), node_pos(3), ...
+            'o', 'MarkerSize', 12, 'MarkerFaceColor', [0.5, 1, 0], ...
+            'MarkerEdgeColor', 'k', 'LineWidth', 2);
+    end
+end
+
 if(sim_params.showFrames)
 for c=1:n_edges_dof
     n1 = edges(c,1);
