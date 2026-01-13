@@ -205,12 +205,12 @@ end
 [tilt_x, tilt_y] = compute_plane_tilt(top_node_positions);
 
 %% Plot final geometry
-plot_MultiRod(softRobot, ctime, sim_params, environment, imc, top_verts_ind);
-if convergence_failed
-    title(sprintf('Final Geometry (CONVERGENCE FAILED) - Tilt: X=%.2f°, Y=%.2f°', tilt_x, tilt_y));
-else
-    title(sprintf('Final Geometry - Tilt: X=%.2f°, Y=%.2f°', tilt_x, tilt_y));
-end
+% plot_MultiRod(softRobot, ctime, sim_params, environment, imc, top_verts_ind);
+%if convergence_failed
+%    title(sprintf('Final Geometry (CONVERGENCE FAILED) - Tilt: X=%.2f°, Y=%.2f°', tilt_x, tilt_y));
+%else
+%    title(sprintf('Final Geometry - Tilt: X=%.2f°, Y=%.2f°', tilt_x, tilt_y));
+%end
 
 end
 

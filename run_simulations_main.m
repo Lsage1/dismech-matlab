@@ -13,24 +13,28 @@ addpath adaptive_stepping/
 addpath logging/
 addpath(genpath('experiments')); 
 
-%% First, run the robot description to set up all variables
-robotDescriptionHapticDevice;
+
+
+   control_points = [
+        0,      0,       .015;
+       .007,    .005,       .015;
+       .019,    .0040,       .007;
+       .007,    .0011,       .005;
+       .004,    .0007,       .003;
+       .004,    .0005,   .002;
+       .009,    .0005,   .002;
+       .009,    0,     0;
+   ];
 
 %% Define simulation parameters
 edges_to_actuate = [1, 2, 3];  % Which edges to actuate
-actuation_factors = [1, 0.5, 1];  % Multiply initial rest length by these factors
 top_verts_ind = [5, 35, 65];  % Nodes to track (the top vertices)
 
-%% Run single simulation
-%[tilt_x, tilt_y] = simulate_geometry(edges_to_actuate, actuation_factors, top_verts_ind, ...
-%    material, geom, env, sim_params, nodes, edges, face_nodes, ...
-%    fixed_node_indices, fixed_edge_indices);
+% generate the haptic node geometry with 
+create_haptic_node_fun(control_points) 
 
-%% Display results
-%fprintf('\n=== Simulation Results ===\n');
-%fprintf('Tilt about X-axis (pitch): %.2f degrees\n', tilt_x);
-%fprintf('Tilt about Y-axis (roll):  %.2f degrees\n', tilt_y);
-%fprintf('Total tilt magnitude:      %.2f degrees\n', sqrt(tilt_x^2 + tilt_y^2));
+%% run the robot description to set up all variables. Uses the most recent nurbs_cone_structure.txt 
+robotDescriptionHapticDevice;
 
 
 %% Example: Test multiple actuation scenarios

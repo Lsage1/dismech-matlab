@@ -1,18 +1,28 @@
-% NURBS 3-Branch Cone Structure Generator
-% Generates evenly spaced points along a NURBS curve and rotates to create
-% 3 branches at 120-degree intervals
+function create_haptic_node_fun(control_points, output_filename)
+% NURBS_CONE_STRUCTURE_GENERATOR Creates a 3-branch cone structure from control points
+%
+% Inputs:
+%   control_points - Nx3 matrix of control points defining one branch curve
+%   output_filename - (optional) Name of output file. Default: 'nurbs_cone_structure.txt'
+%
+% Example:
+%   control_points = [
+%        0,      0,       .015;
+%       .007,    .005,       .015;
+%       .019,    .0040,       .007;
+%       .007,    .0011,       .005;
+%       .004,    .0007,       .003;
+%       .004,    .0005,   .002;
+%       .009,    .0005,   .002;
+%       .009,    0,     0;
+%   ];
+%   nurbs_cone_structure_generator(control_points);
 
-%% 1. Define control points for one branch
-control_points = [
-     0,      0,       .015;
-    .007,    .005,       .015;
-    .019,    .0040,       .007;
-    .007,    .0011,       .005;
-    .004,    .0007,       .003;
-    .004,    .0005,   .002;
-    .009,    .0005,   .002;
-    .009,    0,     0;
-];
+%% Handle optional arguments
+if nargin < 2
+    script_path = fileparts(mfilename('fullpath'));
+    output_filename = fullfile(script_path, 'nurbs_cone_structure.txt');
+end
 
 %% 2. Create NURBS curve
 n_ctrl = size(control_points, 1);
@@ -32,7 +42,7 @@ knots = [zeros(1, degree+1), internal_knots, ones(1, degree+1)];
 weights = ones(n_ctrl, 1);
 
 %% 3. Generate evenly spaced points along the curve
-n_spaced = 31;  % Number of points per branch (matching your original n_nodes_per_branch)
+n_spaced = 31;  % Number of points per branch
 
 % First evaluate at many points for arc length calculation
 n_eval = 1000;
@@ -96,7 +106,6 @@ for branch = 1:n_branches
            0,               0,              1];
     
     % Rotate all points in the branch template
-    % Subtract central node, rotate, then add back
     branch_nodes = zeros(size(branch_template));
     for j = 1:n_spaced
         point_centered = branch_template(j, :)' - central_node';
@@ -118,37 +127,32 @@ for branch = 1:n_branches
     end
 end
 
-%% 5. Write to file in the same format as cone_structure
-script_path = fileparts(mfilename('fullpath'));
-filename = fullfile(script_path, 'nurbs_cone_structure.txt');
-
-% Write nodes
-fid = fopen(filename,'w');
+%% 5. Write to file
+fid = fopen(output_filename,'w');
 if fid ~= -1
     fprintf(fid,'*Nodes\n');
     fclose(fid);
 end
-writematrix(nodes, filename, 'WriteMode', 'append');
+writematrix(nodes, output_filename, 'WriteMode', 'append');
 
-% Write edges
-fid = fopen(filename, 'at');
+fid = fopen(output_filename, 'at');
 if fid ~= -1
     fprintf(fid,'*Edges\n');
     fclose(fid);
 end
-writematrix(edges, filename, 'WriteMode', 'append');
+writematrix(edges, output_filename, 'WriteMode', 'append');
 
 disp(['Created NURBS structure with ' num2str(size(nodes,1)) ' nodes and ' num2str(size(edges,1)) ' edges']);
-disp(['Output file: ' filename]);
+disp(['Output file: ' output_filename]);
 fprintf('Total curve length per branch: %.4f\n', total_length);
 fprintf('Spacing between points: %.4f\n', total_length / (n_spaced - 1));
 
-%% 6. Optional: Visualize the structure
-%figure('Color', 'w');
-%hold on; grid on; axis equal;
+%% 6. Visualize the structure
+figure('Color', 'w');
+hold on; grid on; axis equal;
 
 % Plot all nodes
-%plot3(nodes(:,1), nodes(:,2), nodes(:,3), 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b');
+plot3(nodes(:,1), nodes(:,2), nodes(:,3), 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b');
 
 % Plot edges
 for i = 1:size(edges, 1)
@@ -171,6 +175,8 @@ xlabel('X'); ylabel('Y'); zlabel('Z');
 title('NURBS-Based 3-Branch Cone Structure');
 view(3);
 rotate3d on;
+
+end
 
 %% Helper Functions
 
