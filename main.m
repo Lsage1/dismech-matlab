@@ -21,7 +21,7 @@ robotDescriptionHapticDevice
 % robotDescriptionRodContact
 % robotDescriptionSquarePlate
 
-edges_to_actuate = [1, 2, 3];  % Edges that represent the tendons"
+edges_to_actuate = [1, 2, 3];  % Edges that represent the tendons
 n_actuated_edges = length(edges_to_actuate);
 
 % Define nodes to highlight in green
@@ -160,6 +160,9 @@ softRobot.fixed_edges = fixed_edge_indices;
 
 % Visualize initial configuration and the fixed and free nodes: free nodes - blue, fixed - red
 plot_MultiRod(softRobot, 0.0, sim_params,environment,imc, top_verts_ind);
+fig_initial = gcf;
+set(fig_initial, 'Name', 'Initial Configuration');
+title('Initial Configuration');
 
 %% Initial conditions on velocity / angular velocity (if any)
 
@@ -260,6 +263,12 @@ for timeStep = 1:Nsteps
     end
 %}
 end
+
+%% Plot final configuration
+plot_MultiRod(softRobot, ctime, sim_params, environment, imc, top_verts_ind);
+fig_final = gcf;
+set(fig_final, 'Name', 'Final Configuration');
+title('Final Configuration');
 
 %% Saving data
 %[rod_data,shell_data] = logDataForRendering(dof_with_time, softRobot, Nsteps, sim_params.static_sim);
