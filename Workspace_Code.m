@@ -78,12 +78,6 @@ hold on;
 %     end
 % end
 
-% Plot the 4 specified points
-scatter3(point1(1), point1(2), point1(3), 100, 'red', 'o', 'filled', 'DisplayName', 'Initial End Effector Location');
-scatter3(point2(1), point2(2), point2(3), 100, 'blue', 's', 'filled', 'DisplayName', 'Tendon Location');
-scatter3(point3(1), point3(2), point3(3), 100, 'blue', 's', 'filled', 'HandleVisibility', 'off');
-scatter3(point4(1), point4(2), point4(3), 100, 'blue', 's', 'filled', 'HandleVisibility', 'off');
-
 % Plot the test point
 % scatter3(test_point(1), test_point(2), test_point(3), 150, 'cyan', 'd', 'filled', 'DisplayName', 'Test Point');
 
@@ -104,19 +98,13 @@ for i = 1:3
     secondary_base_points(i, :) = base_point + 0.2 * (tip_position - base_point);
 end
 
-% Plot secondary pyramid edges
+% Plot secondary pyramid edges (without legend)
 % Base triangle edges
 for i = 1:3
     p1 = secondary_base_points(i, :);
     p2 = secondary_base_points(mod(i, 3) + 1, :);
-    if i == 1
-        % Only show first edge in legend
-        plot3([p1(1), p2(1)], [p1(2), p2(2)], [p1(3), p2(3)], ...
-              'g-', 'LineWidth', 2, 'Color', [0, 1, 0, 0.5], 'DisplayName', 'Workspace');
-    else
-        plot3([p1(1), p2(1)], [p1(2), p2(2)], [p1(3), p2(3)], ...
-              'g-', 'LineWidth', 2, 'Color', [0, 1, 0, 0.5], 'HandleVisibility', 'off');
-    end
+    plot3([p1(1), p2(1)], [p1(2), p2(2)], [p1(3), p2(3)], ...
+          'g-', 'LineWidth', 2, 'Color', [0, 1, 0, 0.5], 'HandleVisibility', 'off');
 end
 
 % Edges from secondary base vertices to tip
@@ -127,6 +115,20 @@ for i = 1:3
           [sec_base_point(3), tip_position(3)], ...
           'g-', 'LineWidth', 2, 'Color', [0, 1, 0, 0.5], 'HandleVisibility', 'off');
 end
+
+% Now plot the legend items
+% Plot tip
+scatter3(point1(1), point1(2), point1(3), 100, 'red', 'o', 'filled', 'DisplayName', 'Initial End Effector Location');
+% Plot one base point for legend
+scatter3(point2(1), point2(2), point2(3), 100, 'blue', 's', 'filled', 'DisplayName', 'Tendon Location');
+% Plot other base points without legend
+scatter3(point3(1), point3(2), point3(3), 100, 'blue', 's', 'filled', 'HandleVisibility', 'off');
+scatter3(point4(1), point4(2), point4(3), 100, 'blue', 's', 'filled', 'HandleVisibility', 'off');
+% Plot one workspace edge for legend
+p1 = secondary_base_points(1, :);
+p2 = secondary_base_points(2, :);
+plot3([p1(1), p2(1)], [p1(2), p2(2)], [p1(3), p2(3)], ...
+      'g-', 'LineWidth', 2, 'Color', [0, 1, 0, 0.5], 'DisplayName', 'Workspace');
 
 % Draw lines from each base point to the test point and calculate distances
 base_point_list = [point2; point3; point4];
@@ -181,6 +183,7 @@ zlim([0, 0.025]);  % Updated to accommodate taller pyramid
 view(3);
 grid on;
 axis equal;
+pbaspect([1 1 1]);  % Force equal aspect ratio for all axes
 hold off;
 
 % Function to check if a point is inside the triangular pyramid
