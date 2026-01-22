@@ -29,8 +29,8 @@ end
 sim_params.plotStep = 1;
 
 %% Input text file 
-% inputFileName = 'experiments/rodCantilever/horizontal_rod_n3.txt';
-inputFileName = 'experiments/hapticDevice/nurbs_cone_structure.txt';
+ inputFileName = 'experiments/rodCantilever/horizontal_rod_n3.txt';
+%inputFileName = 'experiments/hapticDevice/nurbs_cone_structure.txt';
 % inputFileName = 'experiments/rodCantilever/horizontal_rod_n51.txt';
 % inputFileName = 'experiments/rodCantilever/horizontal_rod_n101.txt';
 
@@ -42,7 +42,7 @@ inputFileName = 'experiments/hapticDevice/nurbs_cone_structure.txt';
 geom.shell_h = 0;
 geom.rod_r0 = 0.0015; % for contact
 % % geom cross section of rod
-ro = .0015
+ro = .0039/2
 
 geom.Axs = pi * ro ^ 2
 geom.Ixs1 = pi * ro^4 / 4;
