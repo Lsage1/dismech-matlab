@@ -27,7 +27,7 @@ end
 sim_params.plotStep = 1;
 
 %% Input text file
-inputFileName = 'experiments/hapticDevice/nurbs_cone_structure_1tendon.txt';
+inputFileName = 'experiments/hapticDevice/nurbs_cone_structure_noTendons.txt';
 % reading the input text file
 [nodes, edges, face_nodes] = inputProcessorNew(inputFileName);
 
@@ -45,7 +45,7 @@ geom.Jxs = pi * ro^4 / 2;
 
 % material parameters
 material.density = 1200;
-material.youngs_rod = 6.7e7;
+material.youngs_rod = 6e7;
 material.youngs_shell = 0;
 material.poisson_rod = 0.5;
 material.poisson_shell = 0;
