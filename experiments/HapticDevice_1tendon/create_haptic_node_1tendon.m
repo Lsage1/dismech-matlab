@@ -78,9 +78,12 @@ angles = [0, 120, 240];  % Degrees from x-axis
 % Origin node (shared by all branches)
 origin_node = [0, 0, 0.022];
 
-% Initialize with origin node
-nodes = origin_node;  % Node 1: origin
-edges = [];
+% Base origin node (at 0,0,0)
+base_origin = [0, 0, 0];
+
+% Initialize with both origin nodes
+nodes = [base_origin; origin_node];  % Node 1: base origin, Node 2: center origin
+edges = [1, 2];  % Edge 1: connects base origin to center origin
 
 % Number of nodes per branch excluding the origin (which is shared)
 n_nodes_per_branch = n_spaced - 1;
@@ -105,11 +108,12 @@ for branch = 1:n_branches
     nodes = [nodes; branch_nodes];
     
     % Create edges for this branch
-    start_idx = 1 + (branch-1)*n_nodes_per_branch;
+    % Now we need to account for the base origin node (index shift by 1)
+    start_idx = 2 + (branch-1)*n_nodes_per_branch;
     for i = 0:n_nodes_per_branch-1
         if i == 0
-            % Connect origin to first node of branch
-            edges = [edges; 1, start_idx + i + 1];
+            % Connect center origin (node 2) to first node of branch
+            edges = [edges; 2, start_idx + i + 1];
         else
             % Connect consecutive nodes within branch
             edges = [edges; start_idx + i, start_idx + i + 1];
@@ -158,7 +162,11 @@ for i = 1:size(edges, 1)
           [nodes(n1,3), nodes(n2,3)], 'r-', 'LineWidth', 2);
 end
 
-% Highlight origin node
+% Highlight base origin node
+plot3(base_origin(1), base_origin(2), base_origin(3), ...
+    'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
+
+% Highlight center origin node
 plot3(origin_node(1), origin_node(2), origin_node(3), ...
     'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
 
